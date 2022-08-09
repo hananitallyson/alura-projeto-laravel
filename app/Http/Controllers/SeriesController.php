@@ -24,11 +24,20 @@ class SeriesController extends Controller
 
     public function store(Request $request)
     {
-        $nomeSerie = $request->input('nome');
-        $serie = new Serie();
-        $serie->nome = $nomeSerie;
-        $serie->save();
+        // Curso 1 laravel:
+        // $nomeSerie = $request->input('nome');
+        // $serie = new Serie();
+        // $serie->nome = $nomeSerie;
+        // $serie->save();
 
-        return redirect('/series');
+        // Curso 2 laravel
+        // Usando o Mass Assignment do Laravel Model::create();
+        Serie::create($request->all());
+        // O ->all() pega todas as informações passadas na requisição
+        // Enquanto o ->only() pega as informações indicadas
+
+        // return redirect(route('series.index'));
+        // return redirect()->route('series.index');
+        return to_route('series.index');
     }
 }
