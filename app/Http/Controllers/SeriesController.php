@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SeriesFormRequest;
+use App\Models\Episode;
+use App\Models\Season;
 use Illuminate\Http\Request;
-use App\Models\Serie;
+use App\Models\Series;
 
 class SeriesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $series = Serie::query()->orderBy('nome')->get();
+        $series = Series::all();
+        $mensagemSucesso = $request->session()->get('mensagem.sucesso');
 
-        // view('pagina view', data[])
-        // compact contém um array de uma variável
-        // return view('pagina view')->('chave', valor)
-        return view('series.index')->with('series', $series);
+        return view('series.index')
+            ->with('series', $series)
+            ->with('mensagemSucesso', $mensagemSucesso);
     }
 
     public function create()
@@ -22,22 +25,64 @@ class SeriesController extends Controller
         return view('series.create');
     }
 
-    public function store(Request $request)
+    public function store(SeriesFormRequest $request)
     {
-        // Curso 1 laravel:
-        // $nomeSerie = $request->input('nome');
-        // $serie = new Serie();
-        // $serie->nome = $nomeSerie;
-        // $serie->save();
+        $series = Series::create($request->all());
 
-        // Curso 2 laravel
-        // Usando o Mass Assignment do Laravel Model::create();
-        Serie::create($request->all());
-        // O ->all() pega todas as informações passadas na requisição
-        // Enquanto o ->only() pega as informações indicadas
+        $seasons = [];
+        for ($i = 1; $i <= $request->seasonsQty; $i++) {
+            $seasons[] = [
+                'series_id' => $series->id,
+                'number' => $i,
+            ];
+        }
+        Season::insert($seasons);
 
-        // return redirect(route('series.index'));
-        // return redirect()->route('series.index');
-        return to_route('series.index');
+        $episodes = [];
+        foreach ($series->seasons as $season) {
+            for ($j = 1; $j <= $request->episodesPerSeason; $j++) {
+                $episodes[] = [
+                    'season_id' => $season->id,
+                    'number' => $j,
+                ];
+            }
+        }
+        Episode::insert($episodes);
+
+        return to_route('series.index')
+            ->with('mensagem.sucesso', "Série '$series->nome' adicionada com sucesso!");
+    }
+
+    public function show(Series $series) {
+        $seasons = $series->seasons()->with('episodes')->get();
+
+        return view('series.show')
+            ->with('seasons', $seasons)
+            ->with('series', $series);
+    }
+
+    public function edit(Series $series)
+    {
+        return view('series.edit', [
+            'series' => $series
+        ]);
+    }
+
+    public function update(SeriesFormRequest $request, Series $series)
+    {
+        $series->fill($request->all());
+        $series->save();
+
+        return to_route('series.index')
+            ->with('mensagem.sucesso', "Série '$series->nome' atualizada com sucesso!");
+
+    }
+
+    public function destroy(Series $series)
+    {
+        $series->delete();
+
+        return to_route('series.index')
+            ->with('mensagem.sucesso', "Série '$series->nome' removida com sucesso!");
     }
 }
