@@ -7,6 +7,7 @@ use App\Models\Episode;
 use App\Models\Season;
 use Illuminate\Http\Request;
 use App\Models\Series;
+use Illuminate\Support\Facades\DB;
 
 class SeriesController extends Controller
 {
@@ -27,6 +28,7 @@ class SeriesController extends Controller
 
     public function store(SeriesFormRequest $request)
     {
+        DB::beginTransaction();
         $series = Series::create($request->all());
 
         $seasons = [];
@@ -48,6 +50,7 @@ class SeriesController extends Controller
             }
         }
         Episode::insert($episodes);
+        DB::commit();
 
         return to_route('series.index')
             ->with('mensagem.sucesso', "Série '$series->nome' adicionada com sucesso!");
