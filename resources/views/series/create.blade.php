@@ -1,4 +1,8 @@
-<x-layout title="Nova Série">
+@extends('layouts.default')
+
+@section('title', 'Nova Série')
+
+@section('content')
     <form action="{{ route('series.store') }}" method="post">
         @csrf
 
@@ -19,4 +23,4 @@
 
         <button class="btn btn-primary" type="submit">Adicionar</button>
     </form>
-</x-layout>
+@endsection

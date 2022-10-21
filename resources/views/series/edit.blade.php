@@ -1,4 +1,8 @@
-<x-layout title="Editar série '{!! $series->nome !!}'">
+@extends('layouts.default')
+
+@section('title', 'Editar série '{!! $series->nome !!})
+
+@section('content')
     <form action="{{ route('series.update', $series) }}" method="post">
         @csrf
         @method('PUT')
@@ -9,4 +13,4 @@
 
         <button class="btn btn-primary" type="submit">Editar</button>
     </form>
-</x-layout>
+@endsection

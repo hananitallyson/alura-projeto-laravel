@@ -1,4 +1,8 @@
-<x-layout title="Séries">
+@extends('layouts.default')
+
+@section('title', 'Séries')
+
+@section('content')
     <a class="btn btn-dark mb-2" href="{{ route('series.create') }}">Adicionar</a>
 
     @isset($mensagemSucesso)
@@ -24,4 +28,4 @@
             </li>
         @endforeach
     </ul>
-</x-layout>
+@endsection
